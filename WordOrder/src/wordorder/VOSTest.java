@@ -568,9 +568,9 @@ public class VOSTest extends Test {
 					case 265: case 266: case 267: case 268: case 269: case 270: case 271:
 					case 272: case 273: case 274: case 275: case 276: case 277: case 278:
 						// verb agrees w/ obj in 1st/2nd/3rd per & sing/pl & noun class
-						if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0) &&
-								lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(1) &&
-								lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(2)) {
+						if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0) &&
+								lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(1) &&
+								lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(2)) {
 							probs.add(e.probability);
 						}
 						break;
@@ -585,9 +585,9 @@ public class VOSTest extends Test {
 						if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(0) &&
 								lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(1) &&
 								lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(2) &&
-								lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0) &&
-								lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(1) &&
-								lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(2)) {
+								lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0) &&
+								lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(1) &&
+								lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(2)) {
 							probs.add(e.probability);
 						}
 						break;
