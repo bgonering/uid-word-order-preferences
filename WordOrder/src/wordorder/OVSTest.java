@@ -389,8 +389,8 @@ public class OVSTest extends Test {
 	public Stats ovsSOAgr123_SP_MNM_ErgAbs = new Stats();
 	
 	public OVSTest() {
-		all = new Stats[]{ovs, ovsNomOnly, ovsAccOnly, ovsNomAcc, ovsErgOnly, ovsAbsOnly, ovsErgAbs,
-				ovsSAgr123, /*ovsSAgrWe,*/ ovsOAgr123, /*ovsOAgrWe,*/ ovsSOAgr123, /*ovsSOAgrWe,*/
+		all = new Stats[]{ovs, /*ovsNomOnly, ovsAccOnly, ovsNomAcc, ovsErgOnly, ovsAbsOnly, ovsErgAbs,
+				ovsSAgr123, /*ovsSAgrWe, ovsOAgr123, /*ovsOAgrWe, ovsSOAgr123, /*ovsSOAgrWe,
 				ovsSAgrSP, ovsOAgrSP, ovsSOAgrSP,
 				ovsSAgr123_SP, ovsSAgr123_SP_Nom, ovsSAgr123_SP_Acc, ovsSAgr123_SP_NomAcc, ovsSAgr123_SP_Erg, ovsSAgr123_SP_Abs, ovsSAgr123_SP_ErgAbs,
 				ovsOAgr123_SP, ovsOAgr123_SP_Nom, ovsOAgr123_SP_Acc, ovsOAgr123_SP_NomAcc, ovsOAgr123_SP_Erg, ovsOAgr123_SP_Abs, ovsOAgr123_SP_ErgAbs,
@@ -436,30 +436,31 @@ public class OVSTest extends Test {
 				ovsSOAgr123_SP_AI, ovsSOAgr123_SP_AI_Nom, ovsSOAgr123_SP_AI_Acc, ovsSOAgr123_SP_AI_NomAcc, ovsSOAgr123_SP_AI_Erg, ovsSOAgr123_SP_AI_Abs, ovsSOAgr123_SP_AI_ErgAbs,
 				ovsSOAgr123_SP_HN, ovsSOAgr123_SP_HN_Nom, ovsSOAgr123_SP_HN_Acc, ovsSOAgr123_SP_HN_NomAcc, ovsSOAgr123_SP_HN_Erg, ovsSOAgr123_SP_HN_Abs, ovsSOAgr123_SP_HN_ErgAbs,
 				ovsSOAgr123_SP_HAI, ovsSOAgr123_SP_HAI_Nom, ovsSOAgr123_SP_HAI_Acc, ovsSOAgr123_SP_HAI_NomAcc, ovsSOAgr123_SP_HAI_Erg, ovsSOAgr123_SP_HAI_Abs, ovsSOAgr123_SP_HAI_ErgAbs,
-				ovsSOAgr123_SP_MNM, ovsSOAgr123_SP_MNM_Nom, ovsSOAgr123_SP_MNM_Acc, ovsSOAgr123_SP_MNM_NomAcc, ovsSOAgr123_SP_MNM_Erg, ovsSOAgr123_SP_MNM_Abs, ovsSOAgr123_SP_MNM_ErgAbs};
+				ovsSOAgr123_SP_MNM, ovsSOAgr123_SP_MNM_Nom, ovsSOAgr123_SP_MNM_Acc, ovsSOAgr123_SP_MNM_NomAcc, ovsSOAgr123_SP_MNM_Erg, ovsSOAgr123_SP_MNM_Abs, ovsSOAgr123_SP_MNM_ErgAbs*/};
 	}
 	
 	protected void entropyCalc(ArrayList<Event> events, Event ev, HashMap<String, HashMap<String, Word>> lexicons) {
 		for(int i = 0; i < all.length; i++) {
 			all[i].count++;
 			ArrayList<Double> probs = new ArrayList<>();
+			BigDecimal pObj = new BigDecimal((double)probs.size());
+			
 			// compute the entropy for probability of events, given we know what is being done to
 			for(Event e:events) {
 				if(e.obj.equals(Objects.valueOf(first.get(conditionCode[i]).word.toUpperCase())) &&
 						e.probability > 0.0) {
 					probs.add(e.probability);
+					pObj = pObj.add(BigDecimal.valueOf(e.probability));
 				}
 			}
-
-			BigDecimal pObj = new BigDecimal((double)probs.size());
-			pObj = pObj.divide(new BigDecimal(40.0D), MathContext.DECIMAL128);
+			
 			eta1 = calcEntropy(probs, pObj);
 
 			all[i].eta1.add(eta1);
 			all[i].eventProbs.add(ev.probability);
 
 			probs = new ArrayList<>();
-			double factor = 0.0;
+			BigDecimal pObjVerb = new BigDecimal(0.0);
 
 			for(Event e:events) {
 				if(e.obj.equals(Objects.valueOf(first.get(conditionCode[i]).word.toUpperCase())) &&
@@ -468,20 +469,20 @@ public class OVSTest extends Test {
 						case 7: case 9:
 							// verb agrees with the subj (case 7) and the subj&obj (case 9) in 1st/2nd/3rd person
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("person").get(0) == second.get(conditionCode[i]).inflection.get("subj").get(0)) {
-								factor++;
 								if (e.action.equals(Actions.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 									// how many of those events could involve both the obj and verb?
 									probs.add(e.probability);
+									pObjVerb = pObjVerb.add(BigDecimal.valueOf(e.probability));
 								}
 							}
 							break;
 						case 10: case 12:
 							// verb agrees with the subj (case 10) and the subj&obj (case 12) in sing/pl
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("number").get(0) == second.get(conditionCode[i]).inflection.get("subj").get(0)) {
-								factor++;
 								if (e.action.equals(Actions.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 									// how many of those events could involve both the obj and verb?
 									probs.add(e.probability);
+									pObjVerb = pObjVerb.add(BigDecimal.valueOf(e.probability));
 								}
 							}
 							break;
@@ -490,10 +491,10 @@ public class OVSTest extends Test {
 							// verb agrees with the subj (cases 13-19) and the subj&obj (cases 27-33) in 1st/2nd/3rd person & sing/pl
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("person").get(0) == second.get(conditionCode[i]).inflection.get("subj").get(0) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("number").get(0) == second.get(conditionCode[i]).inflection.get("subj").get(1)) {
-								factor++;
 								if (e.action.equals(Actions.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 									// how many of those events could involve both the obj and verb?
 									probs.add(e.probability);
+									pObjVerb = pObjVerb.add(BigDecimal.valueOf(e.probability));
 								}
 							}
 							break;
@@ -513,10 +514,10 @@ public class OVSTest extends Test {
 						case 174: case 175: case 176: case 177: case 178: case 179: case 180:
 							// verb agrees with the subj (cases 34-82) and the subj&obj (cases 132-180) in noun class
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("class").get(0) == second.get(conditionCode[i]).inflection.get("subj").get(0)) {
-								factor++;
 								if (e.action.equals(Actions.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 									// how many of those events could involve both the obj and verb?
 									probs.add(e.probability);
+									pObjVerb = pObjVerb.add(BigDecimal.valueOf(e.probability));
 								}
 							}
 							break;
@@ -538,28 +539,25 @@ public class OVSTest extends Test {
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("person").get(0) == second.get(conditionCode[i]).inflection.get("subj").get(0) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("number").get(0) == second.get(conditionCode[i]).inflection.get("subj").get(1) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("class").get(0) == second.get(conditionCode[i]).inflection.get("subj").get(2)) {
-								factor++;
 								if (e.action.equals(Actions.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 									// how many of those events could involve both the obj and verb?
 									probs.add(e.probability);
+									pObjVerb = pObjVerb.add(BigDecimal.valueOf(e.probability));
 								}
 							}
 							break;
 						default:
-							factor++;
 							if (e.action.equals(Actions.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 								// how many of those events could involve both the obj and verb?
 								probs.add(e.probability);
+								pObjVerb = pObjVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 					}
 				}
 			}
 
-			BigDecimal pVerb_givenObj = new BigDecimal((double)probs.size());
-			pVerb_givenObj = pVerb_givenObj.divide(new BigDecimal(factor), MathContext.DECIMAL128);
-
-			eta2 = calcEntropy(probs, pObj.multiply(pVerb_givenObj));
+			eta2 = calcEntropy(probs, pObjVerb);
 			all[i].eta2.add(eta2);
 		}
 //// ---------CASELESS---------------------------------------------------------------------------------------------------//

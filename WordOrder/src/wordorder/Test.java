@@ -442,15 +442,15 @@ public class Test {
 	}
 	
 	protected static BigDecimal base2Log(double x) {
-		BigDecimal eLog = new BigDecimal(Math.log(x));
-		return eLog.divide(new BigDecimal(Math.log(2.0D)), MathContext.DECIMAL128);
+		BigDecimal eLog = BigDecimal.valueOf(Math.log(x));
+		return eLog.divide(BigDecimal.valueOf(Math.log(2.0D)), MathContext.DECIMAL128);
 	}
 	
 	protected static BigDecimal calcEntropy(ArrayList<Double> probs, BigDecimal conditionalProb) {
 		BigDecimal probSum = new BigDecimal(0.0);
 		
 		for(double prob:probs) {
-			BigDecimal p = new BigDecimal(prob);
+			BigDecimal p = BigDecimal.valueOf(prob);
 			p = p.divide(conditionalProb, MathContext.DECIMAL128);
 			probSum = probSum.add(p.multiply(base2Log(p.doubleValue())));
 		}

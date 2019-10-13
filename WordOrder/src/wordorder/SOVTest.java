@@ -389,8 +389,8 @@ public class SOVTest extends Test {
 	public Stats sovSOAgr123_SP_MNM_ErgAbs = new Stats();
 	
 	public SOVTest() {
-		all = new Stats[]{sov, sovNomOnly, sovAccOnly, sovNomAcc, sovErgOnly, sovAbsOnly, sovErgAbs,
-				sovSAgr123, /*sovSAgrWe,*/ sovOAgr123, /*sovOAgrWe,*/ sovSOAgr123, /*sovSOAgrWe,*/
+		all = new Stats[]{sov, /*sovNomOnly, sovAccOnly, sovNomAcc, sovErgOnly, sovAbsOnly, sovErgAbs,
+				sovSAgr123, /*sovSAgrWe, sovOAgr123, /*sovOAgrWe, sovSOAgr123, /*sovSOAgrWe,
 				sovSAgrSP, sovOAgrSP, sovSOAgrSP,
 				sovSAgr123_SP, sovSAgr123_SP_Nom, sovSAgr123_SP_Acc, sovSAgr123_SP_NomAcc, sovSAgr123_SP_Erg, sovSAgr123_SP_Abs, sovSAgr123_SP_ErgAbs,
 				sovOAgr123_SP, sovOAgr123_SP_Nom, sovOAgr123_SP_Acc, sovOAgr123_SP_NomAcc, sovOAgr123_SP_Erg, sovOAgr123_SP_Abs, sovOAgr123_SP_ErgAbs,
@@ -436,30 +436,31 @@ public class SOVTest extends Test {
 				sovSOAgr123_SP_AI, sovSOAgr123_SP_AI_Nom, sovSOAgr123_SP_AI_Acc, sovSOAgr123_SP_AI_NomAcc, sovSOAgr123_SP_AI_Erg, sovSOAgr123_SP_AI_Abs, sovSOAgr123_SP_AI_ErgAbs,
 				sovSOAgr123_SP_HN, sovSOAgr123_SP_HN_Nom, sovSOAgr123_SP_HN_Acc, sovSOAgr123_SP_HN_NomAcc, sovSOAgr123_SP_HN_Erg, sovSOAgr123_SP_HN_Abs, sovSOAgr123_SP_HN_ErgAbs,
 				sovSOAgr123_SP_HAI, sovSOAgr123_SP_HAI_Nom, sovSOAgr123_SP_HAI_Acc, sovSOAgr123_SP_HAI_NomAcc, sovSOAgr123_SP_HAI_Erg, sovSOAgr123_SP_HAI_Abs, sovSOAgr123_SP_HAI_ErgAbs,
-				sovSOAgr123_SP_MNM, sovSOAgr123_SP_MNM_Nom, sovSOAgr123_SP_MNM_Acc, sovSOAgr123_SP_MNM_NomAcc, sovSOAgr123_SP_MNM_Erg, sovSOAgr123_SP_MNM_Abs, sovSOAgr123_SP_MNM_ErgAbs};
+				sovSOAgr123_SP_MNM, sovSOAgr123_SP_MNM_Nom, sovSOAgr123_SP_MNM_Acc, sovSOAgr123_SP_MNM_NomAcc, sovSOAgr123_SP_MNM_Erg, sovSOAgr123_SP_MNM_Abs, sovSOAgr123_SP_MNM_ErgAbs*/};
 	}
 	
 	protected void entropyCalc(ArrayList<Event> events, Event ev, HashMap<String, HashMap<String, Word>> lexicons) {
 		for(int i = 0; i < all.length; i++) {
 			all[i].count++;
 			ArrayList<Double> probs = new ArrayList<>();
-			// compute entropy for probability of events, given we know the person who is doing them
+			BigDecimal pSubj = new BigDecimal(0.0);
+			
+			// compute entropy for cond. probability of events, given we know the person who is doing them
 			for(Event e:events) {
-				// loop through events
 				if(e.person.equals(People.valueOf(first.get(conditionCode[i]).word.toUpperCase())) &&
 						e.probability > 0.0) {
 					probs.add(e.probability);
+					pSubj = pSubj.add(BigDecimal.valueOf(e.probability));
 				}
 			}
-			BigDecimal pSubj = new BigDecimal((double)probs.size()/*1.0*/);
-			pSubj = pSubj.divide(new BigDecimal(/*5*/40.0D), MathContext.DECIMAL128);
+			
 			eta1 = calcEntropy(probs, pSubj);
 			
 			all[i].eta1.add(eta1);
 			all[i].eventProbs.add(ev.probability);
 			
 			probs = new ArrayList<>();
-			double factor = 0.0;
+			BigDecimal pSubjObj = new BigDecimal(0.0);
 			
 			// compute the entropy of probability of events, given we know who is doing
 			// and what is being done to
@@ -467,21 +468,15 @@ public class SOVTest extends Test {
 				// reduce the event space to just those events involving the subj
 				if(e.person.equals(People.valueOf(first.get(conditionCode[i]).word.toUpperCase())) &&
 						e.probability > 0.0) {
-					// count all the events with a non-0 prob of occuring for that person
-					factor++;
 					if (e.obj.equals(Objects.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 						// how many possible events could involve both the subj and obj?
 						probs.add(e.probability);
+						pSubjObj = pSubjObj.add(BigDecimal.valueOf(e.probability));
 					}
 				}
 			}
-			
-			// divide the number of events that could involve both the subj & obj
-			// by the total number of events that could occur given the subj
-			BigDecimal pObj_givenSubj = new BigDecimal((double)probs.size());
-			pObj_givenSubj = pObj_givenSubj.divide(new BigDecimal(factor), MathContext.DECIMAL128);
 
-			eta2 = calcEntropy(probs, pSubj.multiply(pObj_givenSubj));
+			eta2 = calcEntropy(probs, pSubjObj);
 			all[i].eta2.add(eta2);
 		}
 		

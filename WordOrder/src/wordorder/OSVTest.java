@@ -389,8 +389,8 @@ public class OSVTest extends Test {
 	public Stats osvSOAgr123_SP_MNM_ErgAbs = new Stats();
 	
 	public OSVTest() {
-		all = new Stats[]{osv, osvNomOnly, osvAccOnly, osvNomAcc, osvErgOnly, osvAbsOnly, osvErgAbs,
-				osvSAgr123, /*osvSAgrWe,*/ osvOAgr123, /*osvOAgrWe,*/ osvSOAgr123, /*osvSOAgrWe,*/
+		all = new Stats[]{osv, /*osvNomOnly, osvAccOnly, osvNomAcc, osvErgOnly, osvAbsOnly, osvErgAbs,
+				osvSAgr123, /*osvSAgrWe, osvOAgr123, /*osvOAgrWe, osvSOAgr123, /*osvSOAgrWe,
 				osvSAgrSP, osvOAgrSP, osvSOAgrSP,
 				osvSAgr123_SP, osvSAgr123_SP_Nom, osvSAgr123_SP_Acc, osvSAgr123_SP_NomAcc, osvSAgr123_SP_Erg, osvSAgr123_SP_Abs, osvSAgr123_SP_ErgAbs,
 				osvOAgr123_SP, osvOAgr123_SP_Nom, osvOAgr123_SP_Acc, osvOAgr123_SP_NomAcc, osvOAgr123_SP_Erg, osvOAgr123_SP_Abs, osvOAgr123_SP_ErgAbs,
@@ -436,30 +436,31 @@ public class OSVTest extends Test {
 				osvSOAgr123_SP_AI, osvSOAgr123_SP_AI_Nom, osvSOAgr123_SP_AI_Acc, osvSOAgr123_SP_AI_NomAcc, osvSOAgr123_SP_AI_Erg, osvSOAgr123_SP_AI_Abs, osvSOAgr123_SP_AI_ErgAbs,
 				osvSOAgr123_SP_HN, osvSOAgr123_SP_HN_Nom, osvSOAgr123_SP_HN_Acc, osvSOAgr123_SP_HN_NomAcc, osvSOAgr123_SP_HN_Erg, osvSOAgr123_SP_HN_Abs, osvSOAgr123_SP_HN_ErgAbs,
 				osvSOAgr123_SP_HAI, osvSOAgr123_SP_HAI_Nom,  osvSOAgr123_SP_HAI_Acc, osvSOAgr123_SP_HAI_NomAcc, osvSOAgr123_SP_HAI_Erg, osvSOAgr123_SP_HAI_Abs, osvSOAgr123_SP_HAI_ErgAbs,
-				osvSOAgr123_SP_MNM, osvSOAgr123_SP_MNM_Nom, osvSOAgr123_SP_MNM_Acc, osvSOAgr123_SP_MNM_NomAcc, osvSOAgr123_SP_MNM_Erg, osvSOAgr123_SP_MNM_Abs, osvSOAgr123_SP_MNM_ErgAbs};
+				osvSOAgr123_SP_MNM, osvSOAgr123_SP_MNM_Nom, osvSOAgr123_SP_MNM_Acc, osvSOAgr123_SP_MNM_NomAcc, osvSOAgr123_SP_MNM_Erg, osvSOAgr123_SP_MNM_Abs, osvSOAgr123_SP_MNM_ErgAbs*/};
 	}
 	
 	protected void entropyCalc(ArrayList<Event> events, Event ev, HashMap<String, HashMap<String, Word>> lexicons) {
 		for(int i = 0; i < all.length; i++) {
 			all[i].count++;
 			ArrayList<Double> probs = new ArrayList<>();
+			BigDecimal pObj = new BigDecimal((double)probs.size());
+			
 			// compute the entropy for probability of events, given we know what is being done to
 			for(Event e:events) {
 				if(e.obj.equals(Objects.valueOf(first.get(conditionCode[i]).word.toUpperCase())) &&
 						e.probability > 0.0) {
-					probs.add(e.probability);								
+					probs.add(e.probability);
+					pObj = pObj.add(BigDecimal.valueOf(e.probability));
 				}
 			}
 			
-			BigDecimal pObj = new BigDecimal((double)probs.size()/*1.0*/);
-			pObj = pObj.divide(new BigDecimal(/*8*/40.0D), MathContext.DECIMAL128);
 			eta1 = calcEntropy(probs, pObj);
 			
 			all[i].eta1.add(eta1);
 			all[i].eventProbs.add(ev.probability);
 			
 			probs = new ArrayList<>();
-			double factor = 0.0;
+			BigDecimal pObjSubj = new BigDecimal(0.0);
 			
 			// compute the entropy for probability of events, given we know what is being do to
 			// and by who
@@ -467,19 +468,15 @@ public class OSVTest extends Test {
 				// reduce the event space to only those events involving the obj
 				if(e.obj.equals(Objects.valueOf(first.get(conditionCode[i]).word.toUpperCase())) &&
 						e.probability > 0.0) {
-					factor++;
 					if (e.person.equals(People.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 						// how many of those events involve both the obj and subj?
 						probs.add(e.probability);
+						pObjSubj = pObjSubj.add(BigDecimal.valueOf(e.probability));
 					}
 				}
 			}
-			// divide the number of events that could occur involving both the obj and subj
-			// by the total number of events that could occur given the obj
-			BigDecimal pSubj_givenObj = new BigDecimal((double)probs.size());
-			pSubj_givenObj = pSubj_givenObj.divide(new BigDecimal(factor), MathContext.DECIMAL128);
 			
-			eta2 = calcEntropy(probs, pObj.multiply(pSubj_givenObj));
+			eta2 = calcEntropy(probs, pObjSubj);
 			all[i].eta2.add(eta2);
 		}
 //// ---------CASELESS---------------------------------------------------------------------------------------------------//

@@ -389,8 +389,8 @@ public class VSOTest extends Test {
 	public Stats vsoSOAgr123_SP_MNM_ErgAbs = new Stats();
 	
 	public VSOTest() {
-		all = new Stats[]{vso, vsoNomOnly, vsoAccOnly, vsoNomAcc, vsoErgOnly, vsoAbsOnly, vsoErgAbs,
-				vsoSAgr123, /*vsoSAgr123,*/ vsoOAgr123, /*vsoOAgrWe,*/ vsoSOAgr123, /*vsoSOAgrWe,*/
+		all = new Stats[]{vso, /*vsoNomOnly, vsoAccOnly, vsoNomAcc, vsoErgOnly, vsoAbsOnly, vsoErgAbs,
+				vsoSAgr123, /*vsoSAgr123, vsoOAgr123, /*vsoOAgrWe, vsoSOAgr123, /*vsoSOAgrWe,
 				vsoSAgrSP, vsoOAgrSP, vsoSOAgrSP,
 				vsoSAgr123_SP, vsoSAgr123_SP_Nom, vsoSAgr123_SP_Acc, vsoSAgr123_SP_NomAcc, vsoSAgr123_SP_Erg, vsoSAgr123_SP_Abs, vsoSAgr123_SP_ErgAbs,
 				vsoOAgr123_SP, vsoOAgr123_SP_Nom, vsoOAgr123_SP_Acc, vsoOAgr123_SP_NomAcc, vsoOAgr123_SP_Erg, vsoOAgr123_SP_Abs, vsoOAgr123_SP_ErgAbs, 
@@ -436,13 +436,15 @@ public class VSOTest extends Test {
 				vsoSOAgr123_SP_AI, vsoSOAgr123_SP_AI_Nom, vsoSOAgr123_SP_AI_Acc, vsoSOAgr123_SP_AI_NomAcc, vsoSOAgr123_SP_AI_Erg, vsoSOAgr123_SP_AI_Abs, vsoSOAgr123_SP_AI_ErgAbs,
 				vsoSOAgr123_SP_HN, vsoSOAgr123_SP_HN_Nom, vsoSOAgr123_SP_HN_Acc, vsoSOAgr123_SP_HN_NomAcc, vsoSOAgr123_SP_HN_Erg, vsoSOAgr123_SP_HN_Abs, vsoSOAgr123_SP_HN_ErgAbs,
 				vsoSOAgr123_SP_HAI, vsoSOAgr123_SP_HAI_Nom, vsoSOAgr123_SP_HAI_Acc, vsoSOAgr123_SP_HAI_NomAcc, vsoSOAgr123_SP_HAI_Erg, vsoSOAgr123_SP_HAI_Abs, vsoSOAgr123_SP_HAI_ErgAbs,
-				vsoSOAgr123_SP_MNM, vsoSOAgr123_SP_MNM_Nom, vsoSOAgr123_SP_MNM_Acc, vsoSOAgr123_SP_MNM_NomAcc, vsoSOAgr123_SP_MNM_Erg, vsoSOAgr123_SP_MNM_Abs, vsoSOAgr123_SP_MNM_ErgAbs};
+				vsoSOAgr123_SP_MNM, vsoSOAgr123_SP_MNM_Nom, vsoSOAgr123_SP_MNM_Acc, vsoSOAgr123_SP_MNM_NomAcc, vsoSOAgr123_SP_MNM_Erg, vsoSOAgr123_SP_MNM_Abs, vsoSOAgr123_SP_MNM_ErgAbs*/};
 	}
 	
 	protected void entropyCalc(ArrayList<Event> events, Event ev, HashMap<String, HashMap<String, Word>> lexicons) {
 		for(int i = 0; i < all.length; i++) {
 			all[i].count++;
 			ArrayList<Double> probs = new ArrayList<>();
+			BigDecimal pVerb = new BigDecimal(0.0);
+			
 			// compute the entropy  for probability of events, given we know what is being done
 			for(Event e:events) {
 				if(e.action.equals(Actions.valueOf(first.get(conditionCode[i]).word.toUpperCase())) &&
@@ -452,12 +454,14 @@ public class VSOTest extends Test {
 							// verb agrees w/ subj in 1st/2nd/3rd person
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(0)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 8:
 							// verb agrees w/ obj in 1st/2nd/3rd person
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 9:
@@ -465,18 +469,21 @@ public class VSOTest extends Test {
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(0)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 10:
 							// verb agrees w/ subj in sing/pl
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(0)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 11:
 							// verb agrees w/ obj in sing/pl
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 12:
@@ -484,6 +491,7 @@ public class VSOTest extends Test {
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(0)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 13: case 14: case 15: case 16: case 17: case 18: case 19:
@@ -491,6 +499,7 @@ public class VSOTest extends Test {
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(0) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(1)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 20: case 21: case 22: case 23: case 24: case 25: case 26:
@@ -498,6 +507,7 @@ public class VSOTest extends Test {
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(1)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 27: case 28: case 29: case 30: case 31: case 32: case 33:
@@ -507,6 +517,7 @@ public class VSOTest extends Test {
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(1) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(1)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 34: case 35: case 36: case 37: case 38: case 39: case 40:
@@ -519,6 +530,7 @@ public class VSOTest extends Test {
 							// verb agrees w/ subj in noun class
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(0)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 83: case 84: case 85: case 86: case 87: case 88: case 89:
@@ -531,6 +543,7 @@ public class VSOTest extends Test {
 							// verb agrees w/ obj in noun class
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 132: case 133: case 134: case 135: case 136: case 137: case 138:
@@ -544,6 +557,7 @@ public class VSOTest extends Test {
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(0) &&
 										lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 181: case 182: case 183: case 184: case 185: case 186: case 187:
@@ -558,6 +572,7 @@ public class VSOTest extends Test {
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(1) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.person.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("subj").get(2)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 230: case 231: case 232: case 233: case 234: case 235: case 236:
@@ -572,6 +587,7 @@ public class VSOTest extends Test {
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(1) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(2)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						case 279: case 280: case 281: case 282: case 283: case 284: case 285:
@@ -589,23 +605,24 @@ public class VSOTest extends Test {
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(1) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(2)) {
 								probs.add(e.probability);
+								pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 						default:
 							probs.add(e.probability);
+							pVerb = pVerb.add(BigDecimal.valueOf(e.probability));
+							break;
 					}
 				}
 			}
 			
-			BigDecimal pVerb = new BigDecimal((double)probs.size());
-			pVerb = pVerb.divide(new BigDecimal(40.0D), MathContext.DECIMAL128);
 			eta1 = calcEntropy(probs, pVerb);
 			
 			all[i].eta1.add(eta1);
 			all[i].eventProbs.add(ev.probability);
 			
 			probs = new ArrayList<>();
-			double factor = 0.0;
+			BigDecimal pVerbSubj = new BigDecimal(0.0);
 			
 			for(Event e:events) {
 				if(e.action.equals(Actions.valueOf(first.get(conditionCode[i]).word.toUpperCase())) &&
@@ -615,20 +632,20 @@ public class VSOTest extends Test {
 						case 8: case 9:
 							// verb agrees with the obj (case 8) and the subj&obj (case 9) in 1st/2nd/3rd person
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0)) {
-								factor++;
 								if (e.person.equals(People.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 									// how many possible events could involve both the verb and the subj?
 									probs.add(e.probability);
+									pVerbSubj = pVerbSubj.add(BigDecimal.valueOf(e.probability));
 								}
 							}
 							break;
 						case 11: case 12:
 							// verb agrees with the obj (case 11) and the subj&obj (case 12) in sing/pl
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0)) {
-								factor++;
 								if (e.person.equals(People.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 									// how many possible events could involve both the verb and the subj?
 									probs.add(e.probability);
+									pVerbSubj = pVerbSubj.add(BigDecimal.valueOf(e.probability));
 								}
 							}
 							break;
@@ -637,10 +654,10 @@ public class VSOTest extends Test {
 							// verb agrees with the obj (cases 20-26) and the subj&obj (cases 27-33) in 1st/2nd/3rd person & sing/pl
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(1)) {
-								factor++;
 								if (e.person.equals(People.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 									// how many possible events could involve both the verb and the subj?
 									probs.add(e.probability);
+									pVerbSubj = pVerbSubj.add(BigDecimal.valueOf(e.probability));
 								}
 							}
 							break;
@@ -660,10 +677,10 @@ public class VSOTest extends Test {
 						case 174: case 175: case 176: case 177: case 178: case 179: case 180:
 							// verb agrees with the obj (cases 83-131) and the subj&obj (cases 132-180) in noun class
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0)) {
-								factor++;
 								if (e.person.equals(People.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 									// how many possible events could involve both the verb and the subj?
 									probs.add(e.probability);
+									pVerbSubj = pVerbSubj.add(BigDecimal.valueOf(e.probability));
 								}
 							}
 							break;
@@ -685,29 +702,25 @@ public class VSOTest extends Test {
 							if(lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("person").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(0) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("number").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(1) &&
 									lexicons.get(lexiconCode.get(conditionCode[i])).get(e.obj.toString()).inflection.get("class").get(0) == first.get(conditionCode[i]).inflection.get("obj").get(2)) {
-								factor++;
 								if (e.person.equals(People.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 									// how many possible events could involve both the verb and the subj?
 									probs.add(e.probability);
+									pVerbSubj = pVerbSubj.add(BigDecimal.valueOf(e.probability));
 								}
 							}
 							break;
 						default:
-							factor++;
 							if (e.person.equals(People.valueOf(second.get(conditionCode[i]).word.toUpperCase()))) {
 								// how many possible events could involve both the verb and the subj?
 								probs.add(e.probability);
+								pVerbSubj = pVerbSubj.add(BigDecimal.valueOf(e.probability));
 							}
 							break;
 					}
 				}
 			}
-
-			// divide the number of events that could involve both the verb and the obj
-			// by the total number of events that could occur given the verb
-			BigDecimal pObj_givenVerb = new BigDecimal((double)probs.size());
-			pObj_givenVerb = pObj_givenVerb.divide(new BigDecimal(factor), MathContext.DECIMAL128);
-			eta2 = calcEntropy(probs, pVerb.multiply(pObj_givenVerb));
+			
+			eta2 = calcEntropy(probs, pVerbSubj);
 			all[i].eta2.add(eta2);
 		}
 //// ---------CASELESS---------------------------------------------------------------------------------------------------//
