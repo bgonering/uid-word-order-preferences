@@ -434,19 +434,27 @@ public class Test {
 		lexiconCode.put("so-123+sp+mnm+ergabs", "so-123+sp+mnm");
 	}
 	public void calculate(ArrayList<Event> events, Event e, HashMap<String, HashMap<String, Word>> l) {
-		entropyCalc(events, e, l);
+		entropy_SurprisalCalc(events, e, l);
+		mutualInfoCalc(events);
 	}
 	
-	protected void entropyCalc(ArrayList<Event> events, Event e, HashMap<String, HashMap<String, Word>> l) {
+	protected void entropy_SurprisalCalc(ArrayList<Event> events, Event e, HashMap<String, HashMap<String, Word>> l) {
+		
+	}
+	
+	protected void mutualInfoCalc(ArrayList<Event> events) {
 		
 	}
 	
 	protected static BigDecimal base2Log(double x) {
-		BigDecimal eLog = BigDecimal.valueOf(Math.log(x));
-		return eLog.divide(BigDecimal.valueOf(Math.log(2.0D)), MathContext.DECIMAL128);
+		if(x > 0.00) {
+			BigDecimal eLog = BigDecimal.valueOf(Math.log(x));
+			return eLog.divide(BigDecimal.valueOf(Math.log(2.0D)), MathContext.DECIMAL128);
+		}
+		else return BigDecimal.valueOf(0);
 	}
 	
-	protected static BigDecimal calcEntropy(ArrayList<Double> probs, BigDecimal conditionalProb) {
+	protected BigDecimal calcEntropy(ArrayList<Double> probs, BigDecimal conditionalProb) {
 		BigDecimal probSum = new BigDecimal(0.0);
 		
 		for(double prob:probs) {
@@ -457,11 +465,30 @@ public class Test {
 		return probSum.multiply(BigDecimal.valueOf(-1.0));
 	}
 	
+	protected BigDecimal calcSurprisal(ArrayList<Double> probs) {
+		BigDecimal probSum = new BigDecimal(0.0);
+		
+		for(double prob:probs) {
+			BigDecimal p = BigDecimal.valueOf(prob);
+			probSum = probSum.add(p);
+		}
+		
+		BigDecimal surprisal = base2Log(probSum.doubleValue());
+		return surprisal.multiply(BigDecimal.valueOf(-1.0));
+	}
+	
+	protected BigDecimal calcMI(BigDecimal jointP, BigDecimal p1, BigDecimal p2) {
+//		# MI: log[p(x,y)/p(x)p(y)]
+		return base2Log(jointP.divide(p1.multiply(p2), MathContext.DECIMAL128).doubleValue());
+	}
+	
 	public void calcSummaryStats(BigDecimal etaNought) {
 		for(int i = 0; i < all.length; i++) {
 			this.all[i].calcEntTraj();
 			this.all[i].calcInfoProfiles(etaNought);
-			this.all[i].calcMeanDevScore(etaNought);
+			this.all[i].calcMeanEntDevScore(etaNought);
+			this.all[i].calcMeanSurpDevScore();
+			this.all[i].calcMeanMI();
 		}
 	}
 }

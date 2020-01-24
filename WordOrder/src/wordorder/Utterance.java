@@ -11,12 +11,12 @@ public class Utterance {
 		ArrayList<Word> utt = new ArrayList<Word>();
 		ArrayList<Enum> al = new ArrayList<Enum>();
 		
-		utt.add(this.Inflect(event.person.toString(), "case", Case.NONE));
+		utt.add(this.Inflect(event.arg1, "case", Case.NONE));
 		al.add(NounClass.NONE);
-		Word verb = new Word(event.action.toString(), "subj", al);
+		Word verb = new Word(event.verb, "subj", al);
 		verb.agree("obj", al);
 		utt.add(verb);
-		utt.add(this.Inflect(event.obj.toString(), "case", Case.NONE));
+		utt.add(this.Inflect(event.arg2, "case", Case.NONE));
 		genWordOrder(utt, wordOrder);
 	}
 	
@@ -25,58 +25,58 @@ public class Utterance {
 		ArrayList<Enum> al = new ArrayList<Enum>();
 		switch(nounInfl) {
 			case 0:
-				utt.add(this.Inflect(event.person.toString(), "case", Case.NONE));
+				utt.add(this.Inflect(event.arg1, "case", Case.NONE));
 				break;
 			case 1:
-				utt.add(this.Inflect(event.person.toString(), "case", Case.NOM));
+				utt.add(this.Inflect(event.arg1, "case", Case.NOM));
 				break;
 			case 2:
-				utt.add(this.Inflect(event.person.toString(), "case", Case.NONE));
+				utt.add(this.Inflect(event.arg1, "case", Case.NONE));
 				break;
 			case 3:
-				utt.add(this.Inflect(event.person.toString(), "case", Case.NOM));
+				utt.add(this.Inflect(event.arg1, "case", Case.NOM));
 				break;
 			case 4:
-				utt.add(this.Inflect(event.person.toString(), "case", Case.ERG));
+				utt.add(this.Inflect(event.arg1, "case", Case.ERG));
 				break;
 			case 5:
-				utt.add(this.Inflect(event.person.toString(), "case", Case.NONE));
+				utt.add(this.Inflect(event.arg1, "case", Case.NONE));
 				break;
 			case 6:
-				utt.add(this.Inflect(event.person.toString(), "case", Case.ERG));
+				utt.add(this.Inflect(event.arg1, "case", Case.ERG));
 				break;
 			default:
-				utt.add(this.Inflect(event.person.toString(), "case", Case.NONE));
+				utt.add(this.Inflect(event.arg1, "case", Case.NONE));
 				break;
 		}
 		
 		al.add(NounClass.NONE);
-		Word verb = new Word(event.action.toString(), "subj", al);
+		Word verb = new Word(event.verb, "subj", al);
 		verb.agree("obj", al);
 		utt.add(verb);
 		
 		switch(nounInfl) {
 			case 0:
 			case 1:
-				utt.add(this.Inflect(event.obj.toString(), "case", Case.NONE));
+				utt.add(this.Inflect(event.arg2, "case", Case.NONE));
 				break;
 			case 2:
-				utt.add(this.Inflect(event.obj.toString(), "case", Case.ACC));
+				utt.add(this.Inflect(event.arg2, "case", Case.ACC));
 				break;
 			case 3:
-				utt.add(this.Inflect(event.obj.toString(), "case", Case.ACC));
+				utt.add(this.Inflect(event.arg2, "case", Case.ACC));
 				break;
 			case 4:
-				utt.add(this.Inflect(event.obj.toString(), "case", Case.NONE));
+				utt.add(this.Inflect(event.arg2, "case", Case.NONE));
 				break;
 			case 5:
-				utt.add(this.Inflect(event.obj.toString(), "case", Case.ABS));
+				utt.add(this.Inflect(event.arg2, "case", Case.ABS));
 				break;
 			case 6:
-				utt.add(this.Inflect(event.obj.toString(), "case", Case.ABS));
+				utt.add(this.Inflect(event.arg2, "case", Case.ABS));
 				break;
 			default:
-				utt.add(this.Inflect(event.obj.toString(), "case", Case.NONE));
+				utt.add(this.Inflect(event.arg2, "case", Case.NONE));
 				break;
 		}
 		

@@ -8,22 +8,45 @@ public class Stats {
 	public double count;
 	public ArrayList<BigDecimal> eta1;
 	public ArrayList<BigDecimal> eta2;
+	
+	public ArrayList<BigDecimal> surprisal1;
+	public ArrayList<BigDecimal> surprisal2;
+	public ArrayList<BigDecimal> surprisal3;
+	
+	public ArrayList<BigDecimal> mi;
+	
 	public BigDecimal meanEta1;
-	public BigDecimal eta1StdDev;
 	public BigDecimal meanEta2;
+	public BigDecimal eta1StdDev;
 	public BigDecimal eta2StdDev;
+	
 	public ArrayList<BigDecimal> i1;
-	public BigDecimal meanI1;
-	public BigDecimal i1StdDev;
 	public ArrayList<BigDecimal> i2;
+	public BigDecimal meanI1;
 	public BigDecimal meanI2;
+	public BigDecimal i1StdDev;
 	public BigDecimal i2StdDev;
 	// i3 = eta2 - 0 = eta2
 	// meanI3 = meanEta2
 	// i3StdDev = eta2StdDev
-	public ArrayList<BigDecimal> devScores;
-	public BigDecimal meanDevScore;
-	public BigDecimal devScoreStdDev;
+	
+	public BigDecimal meanSurprisal1;
+	public BigDecimal meanSurprisal2;
+	public BigDecimal meanSurprisal3;
+	public BigDecimal surp1StdDev;
+	public BigDecimal surp2StdDev;
+	public BigDecimal surp3StdDev;
+	
+	public BigDecimal meanMI;
+	
+	public ArrayList<BigDecimal> entDevScores;
+	public BigDecimal meanEntDevScore;
+	public BigDecimal entDevScoreStdDev;
+	
+	public ArrayList<BigDecimal> surpDevScores;
+	public BigDecimal meanSurpDevScore;
+	public BigDecimal surpDevScoreStdDev;
+	
 	public ArrayList<Double> eventProbs;
 	private MathContext mc = new MathContext(30);
 	
@@ -36,11 +59,30 @@ public class Stats {
 		this.eta1StdDev = new BigDecimal(0);
 		this.eta2StdDev = new BigDecimal(0);
 		
+		this.surprisal1 = new ArrayList<>();
+		this.surprisal2 = new ArrayList<>();
+		this.surprisal3 = new ArrayList<>();
+		this.meanSurprisal1 = new BigDecimal(0);
+		this.meanSurprisal2 = new BigDecimal(0);
+		this.meanSurprisal3 = new BigDecimal(0);
+		this.surp1StdDev = new BigDecimal(0);
+		this.surp2StdDev = new BigDecimal(0);
+		this.surp3StdDev = new BigDecimal(0);
+		
 		this.i1 = new ArrayList<>();
 		this.i2 = new ArrayList<>();
 		
-		this.devScores = new ArrayList<>();
-		this.meanDevScore = new BigDecimal(0);
+		this.mi = new ArrayList<>();
+		
+		this.entDevScores = new ArrayList<>();
+		this.meanEntDevScore = new BigDecimal(0);
+		this.entDevScoreStdDev = new BigDecimal(0);
+		
+		this.surpDevScores = new ArrayList<>();
+		this.meanSurpDevScore = new BigDecimal(0);
+		this.surpDevScoreStdDev = new BigDecimal(0);
+		
+		this.meanMI = new BigDecimal(0);
 		
 		this.eventProbs = new ArrayList<Double>();
 	}
@@ -128,11 +170,31 @@ public class Stats {
 		temp = temp.add(this.i2.get(index).divide(eta0, MathContext.DECIMAL128).subtract(oneThird).abs());
 		temp = temp.add(this.eta2.get(index).divide(eta0, MathContext.DECIMAL128).subtract(oneThird).abs());
 		temp = temp.multiply(BigDecimal.valueOf(0.75));
-		this.devScores.add(index, temp);
-		return this.devScores.get(index);
+		this.entDevScores.add(index, temp);
+		return this.entDevScores.get(index);
 	}
 	
-	public BigDecimal[] calcMeanDevScore(BigDecimal eta0) {
+	public BigDecimal calcSurpDevScore(int index) {
+		BigDecimal oneThird = new BigDecimal(1.0);
+		oneThird = oneThird.divide(new BigDecimal(3.0), MathContext.DECIMAL128);
+		
+		double prob = this.eventProbs.get(index);
+		if(prob > 0.00) {
+			BigDecimal eventSurp = Test.base2Log(prob).multiply(BigDecimal.valueOf(-1.0));
+			BigDecimal temp = this.surprisal1.get(index).divide(eventSurp, MathContext.DECIMAL128).subtract(oneThird).abs();
+			temp = temp.add(this.surprisal2.get(index).divide(eventSurp, MathContext.DECIMAL128).subtract(oneThird).abs());
+			temp = temp.add(this.surprisal3.get(index).divide(eventSurp, MathContext.DECIMAL128).subtract(oneThird).abs());
+			temp = temp.multiply(BigDecimal.valueOf(0.75));
+			this.surpDevScores.add(index, temp);
+			return this.surpDevScores.get(index);
+		}
+		else {
+			this.surpDevScores.add(index, BigDecimal.valueOf(0));
+			return this.surpDevScores.get(index);
+		}
+	}
+	
+	public BigDecimal[] calcMeanEntDevScore(BigDecimal eta0) {
 		this.calcInfoProfiles(eta0);
 		BigDecimal meanSum = new BigDecimal(0);
 		BigDecimal weightSum = new BigDecimal(0);
@@ -141,16 +203,50 @@ public class Stats {
 			meanSum = meanSum.add(this.calcDevScore(eta0, i).multiply(prob));
 			weightSum = weightSum.add(prob);
 		}
-		this.meanDevScore = meanSum.divide(weightSum, MathContext.DECIMAL128);/*.divide(BigDecimal.valueOf(this.count), MathContext.DECIMAL128)*/;
+		this.meanEntDevScore = meanSum.divide(weightSum, MathContext.DECIMAL128);/*.divide(BigDecimal.valueOf(this.count), MathContext.DECIMAL128)*/;
 		
 		BigDecimal devSum = new BigDecimal(0);
 		for (int i = 0; i < this.count; i++) {
-			BigDecimal temp = (this.devScores.get(i).multiply(BigDecimal.valueOf(this.eventProbs.get(i))));
-			devSum = devSum.add(temp.subtract(this.meanDevScore).pow(2));
+			BigDecimal temp = (this.entDevScores.get(i).multiply(BigDecimal.valueOf(this.eventProbs.get(i))));
+			devSum = devSum.add(temp.subtract(this.meanEntDevScore).pow(2));
 		}
-		this.devScoreStdDev = devSum.divide(BigDecimal.valueOf(this.count-1), MathContext.DECIMAL128).sqrt(this.mc);
-		BigDecimal[] score = {this.meanDevScore, this.devScoreStdDev};
+		this.entDevScoreStdDev = devSum.divide(BigDecimal.valueOf(this.count-1), MathContext.DECIMAL128).sqrt(this.mc);
+		BigDecimal[] score = {this.meanEntDevScore, this.entDevScoreStdDev};
 		return score;
+	}
+	
+	public BigDecimal[] calcMeanSurpDevScore() {
+		BigDecimal meanSum = new BigDecimal(0);
+		BigDecimal weightSum = new BigDecimal(0);
+		for (int i = 0; i < this.count; i++) {
+			BigDecimal prob = new BigDecimal(this.eventProbs.get(i));
+			
+			meanSum = meanSum.add(this.calcSurpDevScore(i).multiply(prob));
+			weightSum = weightSum.add(prob);
+		}
+		this.meanSurpDevScore = meanSum.divide(weightSum, MathContext.DECIMAL128);
+		
+		BigDecimal devSum = new BigDecimal(0);
+		for (int i = 0; i < this.count; i++) {
+			BigDecimal temp = (this.surpDevScores.get(i).multiply(BigDecimal.valueOf(this.eventProbs.get(i))));
+			devSum = devSum.add(temp.subtract(this.meanSurpDevScore).pow(2));
+		}
+		this.surpDevScoreStdDev = devSum.divide(BigDecimal.valueOf(this.count-1), MathContext.DECIMAL128).sqrt(this.mc);
+		BigDecimal[] score = {this.meanSurpDevScore, this.surpDevScoreStdDev};
+		return score;
+	}
+	
+	public BigDecimal calcMeanMI() {
+		BigDecimal meanSum = new BigDecimal(0);
+		BigDecimal weightSum = new BigDecimal(0);
+		for (int i = 0; i < this.count; i++) {
+			BigDecimal prob = new BigDecimal(this.eventProbs.get(i));
+			
+			meanSum = meanSum.add(this.mi.get(i).multiply(prob));
+			weightSum = weightSum.add(prob);
+		}
+		this.meanMI = meanSum.divide(weightSum, MathContext.DECIMAL128);		
+		return this.meanMI;
 	}
 	
 	public void justFuckMeUpFam(BigDecimal eta0) {
