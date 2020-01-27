@@ -117,7 +117,7 @@ public class GetResults {
 //		langs.add("Moksha");
 //		langAbvs.add("mok");
 //		langs.add("Nigerian Pidgin");
-//		langAbvs.add("nig");
+//		langAbvs.add("npe");
 //		langs.add("North Sami");
 //		langAbvs.add("nsa");
 //		langs.add("Norwegian");
