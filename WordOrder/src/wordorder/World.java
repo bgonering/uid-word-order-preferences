@@ -4,6 +4,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -3296,7 +3299,7 @@ public class World {
 	public boolean writeToCSV(String fn) {
 		FileWriter csvWriter;
 		try {
-			csvWriter = new FileWriter(fn);
+			csvWriter = new FileWriter(fn, Charset.forName("UTF-16"));
 			csvWriter.append("Event");
 			csvWriter.append(",");
 			csvWriter.append("Probability");
