@@ -169,12 +169,12 @@ public class GetResults {
 //		langs.add("Yoruba");
 //		langAbvs.add("yor");
 		
-		langs.add("English");
-		langAbvs.add("eng");
-		langs.add("Japanese");
-		langAbvs.add("ja");
-		langs.add("Irish");
-		langAbvs.add("gae");
+//		langs.add("English");
+//		langAbvs.add("eng");
+//		langs.add("Japanese");
+//		langAbvs.add("ja");
+//		langs.add("Irish");
+//		langAbvs.add("gae");
 //		langs.add("Basque");
 //		langAbvs.add("eus");
 //		langs.add("Breton");
@@ -207,17 +207,16 @@ public class GetResults {
 //		langAbvs.add("zho");
 //		langs.add("Dutch");
 //		langAbvs.add("ned");
-//		langs.add("German");
-//		langAbvs.add("deu");
+		langs.add("German");
+		langAbvs.add("deu");
 		for(int i = 0; i < langs.size(); i++) {
-			System.out.println(langs.get(i));
-//			String ud_path = "C:\\Users\\brenn\\Documents\\UD data\\"; // "/home/brennan/Documents/College work/Grad school/2019 - 2020/Prelim paper/UD data/"
-//			CorpusWorld udw = new CorpusWorld(ud_path + langs.get(i) + "\\ud-" + langAbvs.get(i) + "-extracted-excl_singletons.txt");
-//			System.out.println("UD " + langs.get(i) + "...");
-//			udw.run();
-//			udw.getStats();
-//			String results_path = "C:\\Users\\brenn\\Documents\\Results\\singletons excluded"; // "/home/brennan/Documents/College work/Grad school/2019 - 2020/Prelim paper/Results
-//			udw.writeToCSV(results_path + "\\ud_" + langAbvs.get(i) + "-results-excl_singletons.csv");
+			String ud_path = "C:\\Users\\brenn\\Documents\\UD data\\"; // "/home/brennan/Documents/College work/Grad school/2019 - 2020/Prelim paper/UD data/"
+			CorpusWorld udw = new CorpusWorld(ud_path + langs.get(i) + "\\ud-" + langAbvs.get(i) + "-extracted-excl_singletons.txt");
+			System.out.println("UD " + langs.get(i) + "...");
+			udw.run();
+			udw.getStats();
+			String results_path = "C:\\Users\\brenn\\Documents\\Results\\singletons excluded"; // "/home/brennan/Documents/College work/Grad school/2019 - 2020/Prelim paper/Results
+			udw.writeToCSV(results_path + "\\ud_" + langAbvs.get(i) + "-results-excl_singletons.csv");
 			
 //			for(int j = 1; j <= 10; j++) {
 //				udw = new CorpusWorld(ud_path + langs.get(i) + "\\subsets\\subset" + j + "\\ud-" + langAbvs.get(i) + "_subset" + j + "-extracted.txt");

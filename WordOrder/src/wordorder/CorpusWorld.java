@@ -122,8 +122,8 @@ public class CorpusWorld extends World {
 		ArrayList<String> verbs = new ArrayList<String>();
 		ArrayList<String> objs = new ArrayList<String>();
 		try {
-//			Files.lines(Paths.get(this.corpusPath), Charset.forName("Cp1252"))
-			Files.lines(Paths.get(this.corpusPath), Charset.forName("UTF-16"))
+			Files.lines(Paths.get(this.corpusPath), Charset.forName("Cp1252"))
+//			Files.lines(Paths.get(this.corpusPath))
 			.forEach(line -> {
 				String[] breakingUpTheBand = line.split(", ");
 				if(subjs.contains(breakingUpTheBand[0])) {

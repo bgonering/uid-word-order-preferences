@@ -3299,7 +3299,7 @@ public class World {
 	public boolean writeToCSV(String fn) {
 		FileWriter csvWriter;
 		try {
-			csvWriter = new FileWriter(fn, Charset.forName("UTF-16"));
+			csvWriter = new FileWriter(fn, Charset.forName("UTF-8"));
 			csvWriter.append("Event");
 			csvWriter.append(",");
 			csvWriter.append("Probability");
